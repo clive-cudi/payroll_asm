@@ -25,6 +25,6 @@ ext=".asm"
 # echo "in loop"
 truncFileName=${fileName:0:$[${#fileName}-4]}
 nasm -f elf32 $fileName -o ./out/$truncFileName.o
-ld -m elf_i386 ./out/$truncFileName.o -o ./out/$truncFileName
+gcc -m32 ./out/$truncFileName.o -o ./out/$truncFileName
 
 cd ./out && ./$truncFileName
