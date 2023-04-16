@@ -13,6 +13,10 @@ section .data
 	STRING_TERMINATOR equ 0
 	readEmployeeDetailsIntro db "Reading employee details", 0x0a, 0x00
 	updateEmployeeDetailsIntro db "update employee details", 0x0a, 0x00
+	promptEnterEmployeeID db "Enter employee id: ", 0x0a, 0x00
+	enterResultInt db "You entered: %d", 0x0a, 0x00
+	enterResultString db "You entered: %d", 0x0a, 0x00
+	invalidOption db "No valid option was choosen", 0x0a, 0x00
 
 section .bss
 	introOptionChoiceBuffer resb 25
@@ -42,6 +46,7 @@ section .text
 		add esp, 4
 
 		; read input
+		mov dword [option], 0
 		push option
 		push intFormat
 		call scanf
@@ -64,18 +69,53 @@ section .text
 		je exit
 
 		; no valid option chosen
+		push invalidOption
+		call printf
+		add esp, 4
 		jmp exit
 
 read_employee_details:
 		push readEmployeeDetailsIntro
 		call printf
 		add esp, 4
+
+		push promptEnterEmployeeID
+		call printf
+		add esp, 4
+
+		mov dword [option], 0
+		push option
+		push intFormat
+		call scanf
+		add esp, 8
+
+		push dword [option]
+		push enterResultInt
+		call printf
+		add esp, 8
+
+
 		jmp exit
 
 update_employee_details:
 		push updateEmployeeDetailsIntro
 		call printf
 		add esp, 4
+
+		push promptEnterEmployeeID
+		call printf
+		add esp, 4
+
+		push option
+		push intFormat
+		call scanf
+		add esp, 8
+
+		push dword [option]
+		push enterResultInt
+		call printf
+		add esp, 8
+
 		jmp exit
 
 exit:		; end program epilogue
@@ -83,46 +123,6 @@ exit:		; end program epilogue
 		mov esp, ebp
 		pop ebp
 		ret
-
-	; Input:
-	; ESI = pointer to the string to convert
-	; ECX = number of digits in the string (must be > 0)
-	; Output:
-	; EAX = integer value
-	string_to_int:
-		xor ebx,ebx    ; clear ebx
-		.next_digit:
-			movzx eax,byte[esi]
-			inc esi
-			sub al,'0'    ; convert from ASCII to number
-			imul ebx,10
-			add ebx,eax   ; ebx = ebx*10 + eax
-			loop .next_digit  ; while (--ecx)
-			mov eax,ebx
-			ret
-
-
-	; Input:
-	; EAX = integer value to convert
-	; ESI = pointer to buffer to store the string in (must have room for at least 10 bytes)
-	; Output:
-	; EAX = pointer to the first character of the generated string
-	int_to_string:
-		add esi,9
-		mov byte [esi],STRING_TERMINATOR
-
-		mov ebx,10         
-		.next_digit:
-			xor edx,edx         ; Clear edx prior to dividing edx:eax by ebx
-			div ebx             ; eax /= 10
-			add dl,'0'          ; Convert the remainder to ASCII 
-			dec esi             ; store characters in reverse order
-			mov [esi],dl
-			test eax,eax            
-			jnz .next_digit     ; Repeat until eax==0
-			mov eax,esi
-			ret
-
 	; read_employee_details:
 	; 	push ebp
 	; 	mov ebp, esp
