@@ -9,18 +9,25 @@ section .data
 	introOption3 db "3. Exit", 0x0a, 0x00
 	chooseResult db "You chose: %d", 0x0a, 0x00
 	intFormat db "%d", 0
+	strFormat db "%s", 0
 	option: times 4 db 0 ; 32-bit int 8*4
 	STRING_TERMINATOR equ 0
 	readEmployeeDetailsIntro db "Reading employee details", 0x0a, 0x00
 	updateEmployeeDetailsIntro db "update employee details", 0x0a, 0x00
 	promptEnterEmployeeID db "Enter employee id: ", 0x0a, 0x00
 	enterResultInt db "You entered: %d", 0x0a, 0x00
-	enterResultString db "You entered: %d", 0x0a, 0x00
+	enterResultString db "You entered: %s", 0x0a, 0x00
 	invalidOption db "No valid option was choosen", 0x0a, 0x00
+	promptDepartmentName db "Enter departmentName: ", 0x0a, 0x00
+	notFoundDepartmentName db "No department with the name %s was found", 0x0a, 0x00
+	optionString db "", 0x0a
+	optionStringReset db "", 0x0a
+	departmentListPath db "./data/departments.txt"
 
 section .bss
 	introOptionChoiceBuffer resb 25
 	introOptionChoiceBufferLen equ $- introOptionChoiceBuffer
+	fileInputBuffer resb 26
 
 section .text
 	main:
@@ -79,20 +86,41 @@ read_employee_details:
 		call printf
 		add esp, 4
 
+		; prompt for department name
+		push promptDepartmentName
+		call printf
+		add esp, 4
+
+		; read department name
+		mov dword [optionString], optionStringReset
+		push optionString
+		push strFormat
+		call scanf
+		add esp, 8
+
+		; prompt for employee ID
 		push promptEnterEmployeeID
 		call printf
 		add esp, 4
 
+		; read employee ID
 		mov dword [option], 0
 		push option
 		push intFormat
 		call scanf
 		add esp, 8
 
+		push optionString
+		push enterResultString
+		call printf
+		add esp, 8
+
 		push dword [option]
 		push enterResultInt
 		call printf
 		add esp, 8
+
+		; look for department in departments.txt
 
 
 		jmp exit

@@ -11,7 +11,6 @@
     - salary
     - job group
     - department
-- thinking of separating each employee entry with "\n-----------\n"
 
 - on running
     - user is prompted "1. Read employee payroll" "2. add/update employee payroll"
